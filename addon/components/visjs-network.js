@@ -10,8 +10,6 @@ export default Ember.Component.extend(ContainerMixin, {
   layout,
   classNames: ['ember-cli-visjs ember-cli-visjs-network'],
 
-  network: false,
-
   init() {
     this._super(...arguments);
 
@@ -19,9 +17,7 @@ export default Ember.Component.extend(ContainerMixin, {
     this.set('edges', new vis.DataSet([]));
   },
 
-  didInsertElement() {
-    this._super(...arguments);
-
+  network: Ember.computed(function() {
     let options = this.get('options') || {};
     options.manipulation = options.manipulation || {};
     options.manipulation.addEdge = this.cEdgeAdded.bind(this);
@@ -68,10 +64,8 @@ export default Ember.Component.extend(ContainerMixin, {
       });
     });
 
-    this.set('network', network);
-    this.set('storeAs', this);
-    this.setupBackgroundImage();
-  },
+    return network;
+  }).readOnly(),
 
   didUpdateAttrs(changes) {
     this._super(...arguments);
@@ -89,10 +83,8 @@ export default Ember.Component.extend(ContainerMixin, {
     }
   },
 
-  setupBackgroundImage() {
-    if (!this.get('backgroundImage')) {
-      return;
-    }
+  setupBackgroundImage: Ember.on('didInstertElement', function() {
+    if (!this.get('backgroundImage')) { return; }
 
     let backgroundImage = new Image();
     let network = this.get('network');
@@ -110,7 +102,7 @@ export default Ember.Component.extend(ContainerMixin, {
     };
 
     backgroundImage.src = this.get('backgroundImage');
-  },
+  }),
 
   setupAddEdges() {
     if (this.get('addEdges')) {
@@ -119,6 +111,8 @@ export default Ember.Component.extend(ContainerMixin, {
       this.get('network').disableEditMode();
     }
   },
+
+  storeAs: Ember.computed.alias('this'),
 
   cEdgeAdded(edge, callback) {
     let cbResult;
