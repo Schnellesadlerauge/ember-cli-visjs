@@ -13,9 +13,25 @@ export default Ember.Component.extend(ContainerMixin, {
   init() {
     this._super(...arguments);
 
-    this.set('nodes', new vis.DataSet([]));
+    let nodesDataset = new vis.DataSet([]);
+
+    nodesDataset.on('*', (e) => {
+      if(this.get('autofit') && this.get('network')) {
+        this.get('network').fit();
+      }
+    });
+
+    this.set('nodes', nodesDataset);
     this.set('edges', new vis.DataSet([]));
+
+    this.get('resizeService').on('debouncedDidResize', () => {
+      if(this.get('autofit') && this.get('network')) {
+        this.get('network').fit();
+      }
+    });
   },
+
+  autofit: false,
 
   network: Ember.computed(function() {
     let options = this.get('options') || {};
@@ -36,7 +52,7 @@ export default Ember.Component.extend(ContainerMixin, {
         return `${c.get('nId')}` === `${selectedNode}`;
       });
 
-      if (matchingChildNode) {
+      if (matchingChildNode && matchingChildNode.get('select')) {
         matchingChildNode.get('select')(selectedNode, e);
       }
     });
@@ -47,7 +63,7 @@ export default Ember.Component.extend(ContainerMixin, {
         return `${c.get('eId')}` === `${selectedEdge}`;
       });
 
-      if (matchingChildEdge) {
+      if (matchingChildEdge && matchingChildEdge.get('select')) {
         matchingChildEdge.get('select')(selectedEdge, e);
       }
     });
@@ -62,6 +78,10 @@ export default Ember.Component.extend(ContainerMixin, {
         matchingChild.set('posX', newPositions[id].x);
         matchingChild.set('posY', newPositions[id].y);
       });
+
+      if(this.get('autofit') && this.get('network')) {
+        this.get('network').fit();
+      }
     });
 
     return network;
@@ -201,6 +221,7 @@ export default Ember.Component.extend(ContainerMixin, {
     }
 
     nodes.add(simplifiedNode);
+
   },
 
   addEdge(edge) {
@@ -278,6 +299,11 @@ export default Ember.Component.extend(ContainerMixin, {
 
   updateEdgeWidth(eId, width) {
     this.get('edges').update({ id: eId, width });
-  }
+  },
 
+  willDestroyElement: function() {
+    this.get('resizeService').off('debouncedDidResize');
+  },
+
+  resizeService: Ember.inject.service('resize')
 });
