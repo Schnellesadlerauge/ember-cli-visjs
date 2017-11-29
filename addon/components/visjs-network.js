@@ -53,7 +53,7 @@ export default Ember.Component.extend(ContainerMixin, {
       });
 
       if (matchingChildNode && matchingChildNode.get('select')) {
-        matchingChildNode.get('select')(selectedNode, e);
+        matchingChildNode.get('select').call(this, selectedNode, e);
       }
     });
 
@@ -64,7 +64,7 @@ export default Ember.Component.extend(ContainerMixin, {
       });
 
       if (matchingChildEdge && matchingChildEdge.get('select')) {
-        matchingChildEdge.get('select')(selectedEdge, e);
+        matchingChildEdge.get('select').call(this, selectedEdge, e);
       }
     });
 
