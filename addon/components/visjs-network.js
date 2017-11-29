@@ -46,6 +46,17 @@ export default Ember.Component.extend(ContainerMixin, {
 
     let _this = this;
 
+    network.on('deselectNode', (e) => {
+      let [ deselectedNode ] = e.previousSelection.nodes;
+      let matchingChildNode = _this.get('_childLayers').find((c) => {
+        return `${c.get('nId')}` === `${deselectedNode}`;
+      });
+
+      if (matchingChildNode && matchingChildNode.get('deselect')) {
+        matchingChildNode.get('deselect').call(this, deselectedNode, e);
+      }
+    });
+
     network.on('selectNode', (e) => {
       let [ selectedNode ] = e.nodes;
       let matchingChildNode = _this.get('_childLayers').find((c) => {
