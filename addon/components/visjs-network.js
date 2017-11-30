@@ -315,6 +315,7 @@ export default Ember.Component.extend(ContainerMixin, {
   },
 
   willDestroyElement: function() {
+    this._super(...arguments);
     this.get('resizeService').off('debouncedDidResize');
   },
 
