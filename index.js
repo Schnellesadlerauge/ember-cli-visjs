@@ -4,7 +4,7 @@
 module.exports = {
   name: 'ember-cli-visjs',
 
-  /*included: function(app) {
-    app.import(app.bowerDirectory + '/vis/dist/vis.js');
-  }*/
+  included: function(app) {
+    app.import('node_modules/vis/dist/vis.js');
+  }
 };
